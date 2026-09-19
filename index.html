@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="我的 Vibe Coding 成品展示" />
+    <title>俊宏</title>
+
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+
+    <meta property="og:title" content="俊宏 · Vibe Coding 成品" />
+    <meta property="og:description" content="用自然语言和 AI 一起写出来的东西，按成品类型分组。" />
+    <meta property="og:type" content="website" />
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+
+    <!-- 切换主题时避免闪白：在解析前先把已保存的配色贴上 -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("homepage-theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <div id="app"></div>
+
+    <noscript>
+      <p style="padding: 2rem; text-align: center">
+        这个页面需要 JavaScript 才能渲染作品列表。
+      </p>
+    </noscript>
+
+    <!-- 内容配置：改这个文件就能更新主页 -->
+    <script src="assets/projects.js"></script>
+    <!-- 渲染逻辑 -->
+    <script src="assets/app.js"></script>
+  </body>
+</html>
