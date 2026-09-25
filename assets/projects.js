@@ -27,8 +27,6 @@ window.SITE = {
     logo: "touxiang.jpg",
     title: "我做的东西",
     motto: "Ideas used to be limited by skills. Not anymore.", // 首屏座右铭，不想要就删掉这行
-    subtitle: "iOS 越狱插件、网站、小程序、软件和开源项目，一共 23 个。",
-    footerNote: "用自然语言和 AI 写出来的", // 版权后面那句小字
     year: null, // 留 null 自动取当前年份
 
     // 页脚的徽章，不想要就删掉这一项

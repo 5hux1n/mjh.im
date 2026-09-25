@@ -234,21 +234,22 @@
       footer.appendChild(links);
     }
 
-    // 第三行：版权
+    // 底行：版权 + 徽章，同一行右对齐
+    var bottom = el("div", "footer__bottom");
+
     var year = s.year || new Date().getFullYear();
-    var copy = el("p", "footer__copy");
+    var copy = el("span", "footer__copy");
     copy.appendChild(el("span", "footer__c", { "aria-hidden": "true", textContent: "©" }));
     copy.appendChild(document.createTextNode(" " + year + " " + (s.name || "")));
     if (s.footerNote) {
       copy.appendChild(el("span", "footer__sep", { "aria-hidden": "true", textContent: "·" }));
       copy.appendChild(document.createTextNode(s.footerNote));
     }
-    footer.appendChild(copy);
+    bottom.appendChild(copy);
 
-    // 第四行：徽章（可选）
+    // 徽章（可选）
     if (s.badge && s.badge.src) {
-      var badgeWrap = el("p", "footer__badge");
-      var badgeLink = el("a", null, { href: s.badge.href || "#" });
+      var badgeLink = el("a", "footer__badge", { href: s.badge.href || "#" });
       if (external(s.badge.href)) {
         badgeLink.setAttribute("target", "_blank");
         badgeLink.setAttribute("rel", "noreferrer");
@@ -262,9 +263,10 @@
           loading: "lazy",
         })
       );
-      badgeWrap.appendChild(badgeLink);
-      footer.appendChild(badgeWrap);
+      bottom.appendChild(badgeLink);
     }
+
+    footer.appendChild(bottom);
 
     return footer;
   }

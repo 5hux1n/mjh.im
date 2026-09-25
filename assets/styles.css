@@ -508,31 +508,36 @@ main {
   gap: 0.25rem;
 }
 
+/* 底行：版权 + 徽章，同一行右对齐 */
+.footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .footer__copy {
-  margin-top: 1.25rem;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted-soft);
 }
 
-/* 页脚徽章 */
 .footer__badge {
-  display: flex;
-  justify-content: center;
-  margin-top: 1.25rem;
-}
-
-.footer__badge a {
   display: inline-flex;
+  align-items: center;
   transition: opacity 0.15s, transform 0.15s;
 }
 
-.footer__badge a:hover {
+.footer__badge:hover {
   opacity: 0.8;
   transform: translateY(-1px);
 }
 
+/* 高度跟旁边 13px 的版权文字接近，不喧宾夺主 */
 .footer__badge img {
   display: block;
+  width: auto;
+  height: 15px;
   border: 0;
 }
 
