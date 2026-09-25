@@ -211,25 +211,28 @@
     var footer = el("footer", "footer reveal");
     footer.style.animationDelay = "0.36s";
 
-    // 第一行：个性签名
+    // 第一行：个性签名（可选）
     if (s.sign) {
       footer.appendChild(el("p", "footer__sign", { textContent: s.sign }));
     }
 
-    // 第二行：链接
-    var links = el("nav", "footer__links", { "aria-label": "页脚导航" });
-    (SITE.footer || []).forEach(function (item, i) {
-      if (i > 0) {
-        links.appendChild(el("span", "footer__sep", { "aria-hidden": "true", textContent: "·" }));
-      }
-      var attrs = { href: item.href, textContent: item.label };
-      if (item.external || external(item.href)) {
-        attrs.target = "_blank";
-        attrs.rel = "noreferrer";
-      }
-      links.appendChild(el("a", null, attrs));
-    });
-    footer.appendChild(links);
+    // 第二行：链接（可选，顶栏已有这些入口时留空即可）
+    var items = SITE.footer || [];
+    if (items.length) {
+      var links = el("nav", "footer__links", { "aria-label": "页脚导航" });
+      items.forEach(function (item, i) {
+        if (i > 0) {
+          links.appendChild(el("span", "footer__sep", { "aria-hidden": "true", textContent: "·" }));
+        }
+        var attrs = { href: item.href, textContent: item.label };
+        if (item.external || external(item.href)) {
+          attrs.target = "_blank";
+          attrs.rel = "noreferrer";
+        }
+        links.appendChild(el("a", null, attrs));
+      });
+      footer.appendChild(links);
+    }
 
     // 第三行：版权
     var year = s.year || new Date().getFullYear();
@@ -241,6 +244,27 @@
       copy.appendChild(document.createTextNode(s.footerNote));
     }
     footer.appendChild(copy);
+
+    // 第四行：徽章（可选）
+    if (s.badge && s.badge.src) {
+      var badgeWrap = el("p", "footer__badge");
+      var badgeLink = el("a", null, { href: s.badge.href || "#" });
+      if (external(s.badge.href)) {
+        badgeLink.setAttribute("target", "_blank");
+        badgeLink.setAttribute("rel", "noreferrer");
+      }
+      badgeLink.appendChild(
+        el("img", null, {
+          src: s.badge.src,
+          alt: s.badge.alt || "",
+          width: s.badge.width || 52,
+          height: s.badge.height || 22,
+          loading: "lazy",
+        })
+      );
+      badgeWrap.appendChild(badgeLink);
+      footer.appendChild(badgeWrap);
+    }
 
     return footer;
   }
@@ -262,6 +286,9 @@
     var hero = el("section", "hero reveal");
     hero.style.animationDelay = "0.06s";
     hero.appendChild(el("h1", "hero__title", { textContent: s.title || "" }));
+    if (s.motto) {
+      hero.appendChild(el("p", "hero__motto", { textContent: s.motto }));
+    }
     if (s.subtitle) {
       hero.appendChild(el("p", "hero__subtitle", { textContent: s.subtitle }));
     }

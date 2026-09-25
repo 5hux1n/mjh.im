@@ -26,10 +26,19 @@ window.SITE = {
     name: "俊宏",
     logo: "touxiang.jpg",
     title: "我做的东西",
-    subtitle: "iOS 越狱插件、网站、小程序、软件和开源项目，一共 22 个。",
-    sign: "Be water, my friend.", // 页脚第一行的签名，不想要就删掉这行
+    motto: "Ideas used to be limited by skills. Not anymore.", // 首屏座右铭，不想要就删掉这行
+    subtitle: "iOS 越狱插件、网站、小程序、软件和开源项目，一共 23 个。",
     footerNote: "用自然语言和 AI 写出来的", // 版权后面那句小字
     year: null, // 留 null 自动取当前年份
+
+    // 页脚的徽章，不想要就删掉这一项
+    badge: {
+      href: "https://noshakeads.com/10000",
+      src: "https://noshakeads.com/badge.svg",
+      alt: "NSAA",
+      width: 52,
+      height: 22,
+    },
   },
 
   /* ---------- 顶栏导航 ---------- */
@@ -39,12 +48,14 @@ window.SITE = {
     { label: "联系我", href: MAIL },
   ],
 
-  /* ---------- 页脚 ---------- */
-  footer: [
-    { label: "GitHub", href: GH, external: true },
-    { label: "越狱源", href: APT, external: true },
-    { label: "Email", href: MAIL },
-  ],
+  /* ---------- 页脚链接 ----------
+     这几个入口顶栏右上角已经有了，页脚就不再重复。
+     想让页脚也显示，把下面这段取消注释即可。 */
+  // footer: [
+  //   { label: "GitHub", href: GH, external: true },
+  //   { label: "越狱源", href: APT, external: true },
+  //   { label: "Email", href: MAIL },
+  // ],
 
   /* ---------- 作品分组 ---------- */
   groups: [
@@ -66,6 +77,7 @@ window.SITE = {
       title: "网站项目",
       desc: "线上可访问的站点",
       items: [
+        { name: "noshakeads.com", href: "https://noshakeads.com" },
         { name: "relaxin.dev", href: "https://relaxin.dev" },
         { name: "resetit.lol", href: "https://resetit.lol" },
         { name: "is.baby", href: "https://is.baby" },
