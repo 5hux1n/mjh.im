@@ -100,15 +100,19 @@ window.SITE = {
       title: "软件",
       desc: "装在你设备上的成品",
       items: [
-        { name: "CodexM", meta: "Mac" }, // 没有公开仓库，暂不挂链接
-        { name: "OB 播放器", meta: "Mac · Windows · Android · iOS", href: GH + "obplayer" },
+        { name: "CherryMac", meta: "Mac · 键盘配置预览版", href: "http://cherrymac.goforit.si/" },
+        { name: "NSimg 助手", meta: "浏览器扩展 · 用户脚本", href: "http://nsimg.goforit.si/" },
+        { name: "CodexM", meta: "Mac", href: "http://codexm.goforit.si/" },
+        { name: "OB 播放器", meta: "Mac · Windows · Android · iOS", href: "http://obplayer.goforit.si/" },
       ],
     },
     {
       id: "opensource",
       title: "开源项目",
-      desc: "公开在 GitHub 上的仓库",
+      desc: "项目介绍与公开的 GitHub 仓库",
       items: [
+        { name: "印先森 M04S", meta: "Mac 打印驱动 · 本地工作台", href: "http://m04s.goforit.si/" },
+        { name: "WcSy", meta: "微信情景分析插件 · 实验中", href: "http://wcsy.goforit.si/" },
         { name: "Silex", href: GH + "Silex" },
         { name: "apush", href: GH + "apush" },
         { name: "pdd-ship-bot", href: GH + "pdd-ship-bot" },
