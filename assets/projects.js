@@ -102,9 +102,9 @@ window.SITE = {
       desc: "装在你设备上的成品",
       items: [
         { name: "CherryMac", meta: "Mac · 网页键盘配置", href: "https://cherrymac.goforit.si/" },
-        { name: "NSImg 助手", meta: "浏览器扩展 · 用户脚本", href: "http://nsimg.goforit.si/" },
-        { name: "CodexM", meta: "Mac", href: "http://codexm.goforit.si/" },
-        { name: "OBPlayer", meta: "Mac · Windows · Android · iOS", href: "http://obplayer.goforit.si/" },
+        { name: "NSImg 助手", meta: "浏览器扩展 · 用户脚本", href: "https://nsimg.goforit.si/" },
+        { name: "CodexM", meta: "Mac", href: "https://codexm.goforit.si/" },
+        { name: "OBPlayer", meta: "直播播放器 · 多平台开发中", href: "https://obplayer.goforit.si/" },
       ],
     },
     {
@@ -113,7 +113,7 @@ window.SITE = {
       desc: "项目介绍与公开的 GitHub 仓库",
       items: [
         { name: "印先森 M04S", meta: "Mac 打印驱动 · 本地工作台", href: "http://m04s.goforit.si/" },
-        { name: "WcSy", meta: "微信情景分析插件 · 实验中", href: "http://wcsy.goforit.si/" },
+        { name: "WcSy", meta: "微信情景分析插件 · 实验中", href: "https://wcsy.goforit.si/" },
         { name: "Silex", href: GH + "Silex" },
         { name: "APush", href: GH + "apush" },
         { name: "PddShipBot", href: GH + "pdd-ship-bot" },
