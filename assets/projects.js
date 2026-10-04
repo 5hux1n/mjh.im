@@ -101,7 +101,7 @@ window.SITE = {
       title: "软件",
       desc: "装在你设备上的成品",
       items: [
-        { name: "CherryMac", meta: "Mac · 键盘配置预览版", href: "http://cherrymac.goforit.si/" },
+        { name: "CherryMac", meta: "Mac · 网页键盘配置", href: "https://cherrymac.goforit.si/" },
         { name: "NSImg 助手", meta: "浏览器扩展 · 用户脚本", href: "http://nsimg.goforit.si/" },
         { name: "CodexM", meta: "Mac", href: "http://codexm.goforit.si/" },
         { name: "OBPlayer", meta: "Mac · Windows · Android · iOS", href: "http://obplayer.goforit.si/" },
