@@ -25,7 +25,7 @@ window.SITE = {
   site: {
     name: "俊宏",
     logo: "touxiang.jpg",
-    title: "我做的东西",
+    title: "Go for it!",
     motto: "Ideas used to be limited by skills. Not anymore.", // 首屏座右铭，不想要就删掉这行
     year: null, // 留 null 自动取当前年份
 
