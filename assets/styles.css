@@ -382,7 +382,8 @@ main {
   flex-shrink: 0;
   border-radius: 10px;
   border: 1px solid var(--border-hairline);
-  object-fit: cover;
+  object-fit: contain;
+  background: #fff;
 }
 
 .card__icon--letter {

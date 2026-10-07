@@ -1,0 +1,182 @@
+[
+  {
+    "name": "番茄净化",
+    "file": "fanqie.svg",
+    "kind": "existing",
+    "source": "https://fanqie.goforit.si/icon.svg"
+  },
+  {
+    "name": "红果净化",
+    "file": "hongguo.svg",
+    "kind": "existing",
+    "source": "https://hongguo.goforit.si/icon.svg"
+  },
+  {
+    "name": "闲鱼助手",
+    "file": "xianyu.png",
+    "kind": "existing",
+    "source": "https://xianyu.goforit.si/icon.png"
+  },
+  {
+    "name": "虚拟权限",
+    "file": "fakeperm.png",
+    "kind": "existing",
+    "source": "https://xnqx.goforit.si/assets/icon.png"
+  },
+  {
+    "name": "WcLocate",
+    "file": "wclocate.png",
+    "kind": "existing",
+    "source": "https://apt.mjh.im/assets/im.mjh.wclocate/icon.png"
+  },
+  {
+    "name": "弹幕助手",
+    "file": "danmu.png",
+    "kind": "existing",
+    "source": "https://apt.mjh.im/assets/danmutool/icon.png"
+  },
+  {
+    "name": "Alipay2NFC",
+    "file": "alipay2nfc.png",
+    "kind": "existing",
+    "source": "https://apt.mjh.im/assets/im.mjh.alipay2nfc/icon.png"
+  },
+  {
+    "name": "挠一挠",
+    "file": "scratch.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "DomainCheck",
+    "file": "domaincheck.svg",
+    "kind": "existing",
+    "source": "https://domain.goforit.si/favicon.svg"
+  },
+  {
+    "name": "GoForIt.si",
+    "file": "goforit.svg",
+    "kind": "existing",
+    "source": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230071e3'/%3E%3Cpath d='M18 34l9 9 20-24' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+  },
+  {
+    "name": "NoShakeAds.com",
+    "file": "noshakeads.svg",
+    "kind": "existing",
+    "source": "https://noshakeads.com/icon.svg?4e9ae5cfc2b5e5bf"
+  },
+  {
+    "name": "Relaxin.dev",
+    "file": "relaxin.png",
+    "kind": "existing",
+    "source": "https://relaxin.dev/apple-touch-icon.png"
+  },
+  {
+    "name": "ResetIt.lol",
+    "file": "resetit.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "Is.baby",
+    "file": "isbaby.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "Tengzhou.ren",
+    "file": "tengzhou.svg",
+    "kind": "existing",
+    "source": "https://tengzhou.ren/favicon.svg?v=1789211692"
+  },
+  {
+    "name": "网购退货截图生成器",
+    "file": "return-shot.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "CC 你又想挨揍了",
+    "file": "cc.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "抢谷子",
+    "file": "guzi.png",
+    "kind": "existing",
+    "source": "项目本地资源：小程序/抢谷子/小程序前端/images/logo.png"
+  },
+  {
+    "name": "OBPlayer",
+    "file": "obplayer.png",
+    "kind": "existing",
+    "source": "项目本地资源：OB 播放器/MacOS/icon.png"
+  },
+  {
+    "name": "方方格子离线登录授权",
+    "file": "ffcell.ico",
+    "kind": "existing",
+    "source": "项目本地资源：小程序/方方格子离线登录授权/服务器后端/assets/images/favicon.ico"
+  },
+  {
+    "name": "抓小猫",
+    "file": "catchcat.png",
+    "kind": "existing",
+    "source": "项目本地角色资源：小程序/抓小猫/抓小猫/assets/images/left/1.png"
+  },
+  {
+    "name": "CherryMac",
+    "file": "cherrymac.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "NSImg 助手",
+    "file": "nsimg.png",
+    "kind": "existing",
+    "source": "https://nsimg.goforit.si/site-assets/icon.png"
+  },
+  {
+    "name": "CodexM",
+    "file": "codexm.png",
+    "kind": "existing",
+    "source": "https://codexm.goforit.si/site-assets/icon.png"
+  },
+  {
+    "name": "印先森 M04S",
+    "file": "m04s.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "WcSy",
+    "file": "wcsy.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "Silex",
+    "file": "silex.png",
+    "kind": "existing",
+    "source": "项目本地资源：Silex/Styles/icon.png"
+  },
+  {
+    "name": "APush",
+    "file": "apush.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "PddShipBot",
+    "file": "pdd-ship-bot.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  },
+  {
+    "name": "个体户税费计算器",
+    "file": "soleprop-calc.svg",
+    "kind": "custom-identifier",
+    "source": "为主页绘制的项目识别图标（非既有品牌 Logo）"
+  }
+]
