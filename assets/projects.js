@@ -9,7 +9,7 @@
 
    每个作品（items 里的一项）：
      name    : 作品名（必填）
-     meta    : 灰色小字（只有「软件」分组在用，其他分组不需要）
+     meta    : 可选，灰色小字，用于功能或平台说明
      href    : 点击跳转的链接。不填 = 渲染成不可点击的静态卡片
      icon    : 可选，图标图片路径（建议 80x80 方图）
               不填则自动用作品名首字母生成占位图标
@@ -60,11 +60,12 @@ window.SITE = {
     {
       id: "tweak",
       title: "iOS 越狱插件",
-      desc: "给越狱设备写的功能增强插件，都能在越狱源里装到",
+      desc: "给越狱设备写的功能增强插件，官网提供介绍与安装方式",
       items: [
-        { name: "番茄净化", href: APT + "depiction/web/fanqiefn.html" },
-        { name: "咸鱼助手", href: APT + "depiction/web/im.mjh.xianyuhelper.html" },
-        { name: "虚拟权限", href: APT + "depiction/web/im.mjh.fakeperm.html" },
+        { name: "番茄净化", href: "https://fanqie.goforit.si/" },
+        { name: "红果净化", href: "https://hongguo.goforit.si/" },
+        { name: "闲鱼助手", href: "https://xianyu.goforit.si/" },
+        { name: "虚拟权限", href: "https://xnqx.goforit.si/" },
         { name: "WcLocate", href: APT + "depiction/web/im.mjh.wclocate.html" },
         { name: "弹幕助手", href: APT + "depiction/web/danmutool.html" },
         { name: "Alipay2NFC", href: APT + "depiction/web/im.mjh.alipay2nfc.html" },
@@ -75,6 +76,8 @@ window.SITE = {
       title: "网站项目",
       desc: "线上可访问的站点",
       items: [
+        { name: "挠一挠", href: "https://nao.goforit.si/" },
+        { name: "DomainCheck", meta: "域名批量查询", href: "https://domain.goforit.si/" },
         { name: "GoForIt.si", href: "https://goforit.si/" },
         { name: "NoShakeAds.com", href: "https://noshakeads.com" },
         { name: "Relaxin.dev", href: "https://relaxin.dev" },
@@ -112,10 +115,10 @@ window.SITE = {
       title: "开源项目",
       desc: "项目介绍与公开的 GitHub 仓库",
       items: [
-        { name: "印先森 M04S", meta: "Mac 打印驱动 · 本地工作台", href: "http://m04s.goforit.si/" },
+        { name: "印先森 M04S", meta: "网页蓝牙打印 · Mac 驱动", href: "https://bleprint.goforit.si/" },
         { name: "WcSy", meta: "微信情景分析插件 · 实验中", href: "https://wcsy.goforit.si/" },
         { name: "Silex", href: GH + "Silex" },
-        { name: "APush", href: GH + "apush" },
+        { name: "APush", href: "https://apush.cn/" },
         { name: "PddShipBot", href: GH + "pdd-ship-bot" },
         { name: "个体户税费计算器", href: GH + "SolePropYearEndCalc" },
       ],
