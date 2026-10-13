@@ -1,0 +1,1 @@
+{"name":"mjh-homepage","private":true,"type":"module","scripts":{"snapshot":"node scripts/update-catalog.mjs"},"engines":{"node":">=22"}}

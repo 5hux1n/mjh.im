@@ -1,0 +1,12 @@
+import { readFile,writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { CATALOG_URL,normalizeCatalog } from '../assets/catalog.js';
+const response=await fetch(process.argv[2]||CATALOG_URL,{headers:{'user-agent':'Mozilla/5.0 PingMe catalog snapshot'},cache:'no-store',signal:AbortSignal.timeout(20000)});
+if(!response.ok)throw Error('Catalog download failed: '+response.status);
+const catalog=normalizeCatalog(await response.json());
+const target=fileURLToPath(new URL('../index.html',import.meta.url)),html=await readFile(target,'utf8');
+const snapshot=JSON.stringify(catalog).replaceAll('<','\\u003c');
+const replacement='<!-- generated-catalog:start -->\n    <script type="application/json" id="catalogSnapshot">'+snapshot+'</script>\n    <!-- generated-catalog:end -->';
+if(!html.includes('<!-- generated-catalog:start -->'))throw Error('Snapshot marker missing');
+await writeFile(target,html.replace(/<!-- generated-catalog:start -->[\s\S]*?<!-- generated-catalog:end -->/,replacement));
+console.log('Updated generated snapshot: '+catalog.projects.length+' projects.');
