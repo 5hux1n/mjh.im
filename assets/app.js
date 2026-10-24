@@ -29,18 +29,23 @@ const FACT_ICONS = {
 const factIcon = name => '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (FACT_ICONS[name] || '') + '</svg>';
 
 // 手写签名：和 GitHub 主页卡片同一套写法，一笔一笔写出来，再把墨填满
-function signature(label) {
+function signatureSVG(animated) {
   const WRITE = 2.6, PAD = 6;
   const [x0, y0, x1, y1] = SIGNATURE.bbox, span = x1 - x0;
   const paths = SIGNATURE.glyphs.map(g => {
     const start = (g.bounds[0] - x0) / span * WRITE * 0.82;
     const dur = Math.max(0.35, (g.bounds[2] - g.bounds[0]) / span * WRITE * 1.6);
-    return `<path class="sig__ink" pathLength="1" d="${g.d}" style="animation-delay:${start.toFixed(2)}s,${(WRITE * 0.8 + start * 0.3).toFixed(2)}s;animation-duration:${dur.toFixed(2)}s,.9s"/>`;
+    const timing = animated ? ` style="animation-delay:${start.toFixed(2)}s,${(WRITE * 0.8 + start * 0.3).toFixed(2)}s;animation-duration:${dur.toFixed(2)}s,.9s"` : '';
+    return `<path class="sig__ink" pathLength="1" d="${g.d}"${timing}/>`;
   }).join('');
   const vb = [x0 - PAD, y0 - PAD, span + PAD * 2, y1 - y0 + PAD * 2].map(v => v.toFixed(1)).join(' ');
+  return `<svg viewBox="${vb}" preserveAspectRatio="xMinYMid meet">${paths}</svg>`;
+}
+
+function signature(label) {
   return el('h1', 'sig', { id: 'heroTitle' }, [
     el('span', 'sr-only', { text: label }),
-    el('span', 'sig__art', { 'aria-hidden': 'true', html: `<svg viewBox="${vb}" preserveAspectRatio="xMinYMid meet">${paths}</svg>` })
+    el('span', 'sig__art', { 'aria-hidden': 'true', html: signatureSVG(true) })
   ]);
 }
 
@@ -78,12 +83,23 @@ function works() {
   ]);
 }
 
+// 页脚：一句收尾的话，下面是一条玻璃工具栏（小签名、年份、链接、徽章）
 function footer() {
   const s = SITE.site;
+  const links = el('nav', 'bar__links', { 'aria-label': '页脚链接' });
+  SITE.links.concat(SITE.source ? [SITE.source] : []).forEach(l => links.append(el('a', null, Object.assign(linkAttrs(l.href), { text: l.label }))));
   return el('footer', 'foot', null, [
-    el('blockquote', 'lg sheet foot__quote', null, [el('p', null, { text: s.quote }), el('p', 'foot__by', { text: '写在我的博客签名里' })]),
-    el('div', 'foot__row', null, [
-      s.badge?.src ? el('a', 'foot__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, width: 38, height: 16, loading: 'lazy' })]) : null
+    el('blockquote', 'lg sheet closing', null, [
+      el('p', 'closing__line', { text: s.quote }),
+      s.quoteNote ? el('p', 'closing__note', { lang: 'en', text: s.quoteNote }) : null
+    ]),
+    el('div', 'lg lg--clear bar', null, [
+      el('a', 'bar__sign', { href: '#main', 'aria-label': '回到顶部' }, [
+        el('span', 'bar__sig', { 'aria-hidden': 'true', html: signatureSVG(false) }),
+        el('span', 'bar__year', { text: '© ' + new Date().getFullYear() })
+      ]),
+      links,
+      s.badge?.src ? el('a', 'bar__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, width: 38, height: 16, loading: 'lazy' })]) : null
     ])
   ]);
 }
