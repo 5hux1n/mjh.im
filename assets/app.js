@@ -1,297 +1,112 @@
 import { SITE } from './site.js?v=20261013-unified-catalog';
-import { CATALOG_URL,CATALOG_CACHE_KEY,normalizeCatalog,projectGroups } from './catalog.js?v=20261014-plugin-catalog';
-(function () {
-  "use strict";
+import { el, linkAttrs, icon, themeToggle, initialCatalog, refreshCatalog, projectGroups, reducedMotion, boot } from './core.js?v=20261025-stickers';
 
-  var activeCatalog;
+// 设计：一台贴满作品贴纸的笔记本盖。头像在原本 logo 的位置发光，贴纸可以拖着玩。
+let catalog;
+const COLORS = ['white', 'yellow', 'pink', 'blue', 'lime', 'ink', 'white', 'orange'];
+const SHAPES = ['rect', 'pill', 'round', 'rect', 'ticket'];
 
-  /* ---------- 小工具 ---------- */
-  function el(tag, className, attrs) {
-    var node = document.createElement(tag);
-    if (className) node.className = className;
-    if (attrs) {
-      Object.keys(attrs).forEach(function (k) {
-        var v = attrs[k];
-        if (v === undefined || v === null) return;
-        // textContent / html 是 DOM 属性，不能走 setAttribute
-        if (k === "textContent") {
-          node.textContent = v;
-        } else if (k === "html") {
-          node.innerHTML = v;
-        } else {
-          node.setAttribute(k, v);
-        }
-      });
+// 由 slug 得到稳定的伪随机数，同一个作品每次都贴在同样的角度
+function seeded(str) {
+  let h = 2166136261;
+  for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return n => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000 * n; };
+}
+
+function sticker(item) {
+  const r = seeded(item.slug);
+  const shape = SHAPES[Math.floor(r(SHAPES.length))];
+  const color = COLORS[Math.floor(r(COLORS.length))];
+  const tilt = (r(14) - 7).toFixed(1);
+  const nudge = (r(16) - 8).toFixed(0);
+  const body = [
+    icon(item, 'sticker__icon', 52),
+    el('span', 'sticker__text', null, [
+      el('span', 'sticker__name', { text: item.name }),
+      shape === 'round' || !item.meta ? null : el('span', 'sticker__meta', { text: item.meta })
+    ])
+  ];
+  const attrs = { 'data-project': item.slug, 'data-shape': shape, 'data-color': color, style: `--tilt:${tilt}deg;--nudge:${nudge}px;--d:${(order++ * 0.035).toFixed(3)}s`, title: item.meta || item.name };
+  const node = item.href
+    ? el('a', 'sticker', Object.assign(linkAttrs(item.href), attrs), body)
+    : el('div', 'sticker is-static', attrs, body.concat(el('span', 'sticker__hint', { text: '微信小程序' })));
+  makeDraggable(node);
+  return node;
+}
+
+/* ---------- 拖动：移动超过 6px 才算拖，松手后不触发打开 ---------- */
+let topZ = 10;
+function makeDraggable(node) {
+  let startX, startY, baseX = 0, baseY = 0, dragging = false, pid = null;
+  node.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    pid = e.pointerId; startX = e.clientX; startY = e.clientY; dragging = false;
+    baseX = parseFloat(node.dataset.x || 0); baseY = parseFloat(node.dataset.y || 0);
+  });
+  node.addEventListener('pointermove', e => {
+    if (e.pointerId !== pid) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (!dragging && Math.hypot(dx, dy) > 6) {
+      dragging = true; node.setPointerCapture(pid); node.classList.add('is-lifted'); node.style.zIndex = ++topZ;
     }
-    return node;
-  }
-
-  function external(href) {
-    return /^https?:\/\//i.test(href || "");
-  }
-
-  function initial(name) {
-    var s = String(name || "?").trim();
-    // 取第一个字符；中文名也能正常显示
-    return s ? s.charAt(0) : "?";
-  }
-
-  /* ---------- 主题切换：auto → light → dark → auto ---------- */
-  var THEME_KEY = "homepage-theme";
-  var THEMES = ["auto", "light", "dark"];
-  var ICONS = {
-    auto: '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M12 3v18"/>',
-    light:
-      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-    dark: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+    if (dragging) { node.dataset.x = baseX + dx; node.dataset.y = baseY + dy; node.style.translate = `${baseX + dx}px ${baseY + dy}px`; }
+  });
+  const end = e => {
+    if (e.pointerId !== pid) return;
+    pid = null;
+    if (dragging) { node.classList.remove('is-lifted'); node.dataset.justDragged = '1'; setTimeout(() => delete node.dataset.justDragged, 0); }
   };
+  node.addEventListener('pointerup', end);
+  node.addEventListener('pointercancel', end);
+  node.addEventListener('click', e => { if (node.dataset.justDragged) e.preventDefault(); });
+  node.addEventListener('dragstart', e => e.preventDefault());
+}
 
-  function readTheme() {
-    try {
-      var v = localStorage.getItem(THEME_KEY);
-      return THEMES.indexOf(v) >= 0 ? v : "auto";
-    } catch (e) {
-      return "auto";
-    }
-  }
+function resetStickers() {
+  document.querySelectorAll('.sticker').forEach(s => { delete s.dataset.x; delete s.dataset.y; s.style.translate = ''; s.style.zIndex = ''; });
+}
 
-  function applyTheme(mode) {
-    var root = document.documentElement;
-    if (mode === "auto") {
-      root.removeAttribute("data-theme");
-    } else {
-      root.setAttribute("data-theme", mode);
-    }
-    try {
-      localStorage.setItem(THEME_KEY, mode);
-    } catch (e) {
-      /* 隐私模式下忽略 */
-    }
-  }
+function lid() {
+  const s = SITE.site;
+  const board = el('div', 'board', { id: 'board' });
+  return el('main', 'lid', { id: 'main' }, [
+    el('div', 'lid__logo', null, [el('img', null, { src: s.logo, alt: '', width: 84, height: 84 })]),
+    el('div', 'nametag', { role: 'img', 'aria-label': '你好，我是' + s.name }, [
+      el('span', 'nametag__band', { text: '你好，我是', 'aria-hidden': 'true' }),
+      el('span', 'nametag__name', { text: s.name, 'aria-hidden': 'true' })
+    ]),
+    el('h1', 'slogan', null, [el('span', 'slogan__big', { text: s.title }), el('span', 'slogan__small', { text: s.motto })]),
+    board
+  ]);
+}
 
-  /* ---------- 顶栏 ---------- */
-  function buildHeader() {
-    var s = SITE.site || {};
-    var header = el("header", "header");
+let order = 0;
+function paint() {
+  order = 0;
+  const board = document.getElementById('board');
+  board.replaceChildren(...projectGroups(catalog).map(g => el('section', 'pack', { 'aria-labelledby': 'pk-' + g.id }, [
+    el('h2', 'tape', { id: 'pk-' + g.id, text: g.title, title: g.desc || null }),
+    ...g.items.map(sticker)
+  ])));
+  document.getElementById('countNote').textContent = '一共 ' + catalog.projects.length + ' 张贴纸，每张都是一个做完的东西。贴纸可以拖着玩，点一下打开。';
+}
 
-    var brand = el("a", "brand", { href: "#main", "aria-label": s.name || "首页" });
-    if (s.logo) {
-      brand.appendChild(el("img", "brand__logo", { src: s.logo, alt: "", width: 20, height: 20 }));
-    }
-    brand.appendChild(el("span", "brand__name", { textContent: s.name || "" }));
-    header.appendChild(brand);
-
-    var nav = el("nav", "nav", { "aria-label": "主导航" });
-    (SITE.nav || []).forEach(function (item) {
-      var attrs = { href: item.href };
-      if (item.external || external(item.href)) {
-        attrs.target = "_blank";
-        attrs.rel = "noreferrer";
-      }
-      nav.appendChild(el("a", null, Object.assign(attrs, { textContent: item.label })));
-    });
-
-    var toggle = el("button", "theme-toggle", {
-      type: "button",
-      "aria-label": "切换配色",
-      title: "切换配色：跟随系统 / 浅色 / 深色",
-    });
-    toggle.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>';
-    var svg = toggle.firstChild;
-
-    function paint(mode) {
-      svg.innerHTML = ICONS[mode];
-      toggle.setAttribute("data-mode", mode);
-    }
-
-    var mode = readTheme();
-    applyTheme(mode);
-    paint(mode);
-
-    toggle.addEventListener("click", function () {
-      mode = THEMES[(THEMES.indexOf(mode) + 1) % THEMES.length];
-      applyTheme(mode);
-      paint(mode);
-    });
-
-    nav.appendChild(toggle);
-    header.appendChild(nav);
-    return header;
-  }
-
-  /* ---------- 卡片 ---------- */
-  function buildCard(item) {
-    // 没有链接的作品（比如微信小程序）渲染成静态卡片，不做成点了没反应的假链接
-    var hasLink = Boolean(item.href);
-    var cls = "card" + (hasLink ? "" : " card--static");
-    var card = hasLink ? el("a", cls, { href: item.href }) : el("div", cls);
-    if (hasLink && external(item.href)) {
-      card.setAttribute("target", "_blank");
-      card.setAttribute("rel", "noreferrer");
-    }
-
-    var row = card;
-    card.dataset.project=item.slug;
-    if (item.icon) {
-      row.appendChild(
-        el("img", "card__icon", { src: item.icon, alt: "", width: 40, height: 40, decoding: "async" })
-      );
-    } else {
-      var letter = el("span", "card__icon card__icon--letter", { "aria-hidden": "true" });
-      letter.textContent = initial(item.name);
-      row.appendChild(letter);
-    }
-
-    var body = el("span", "card__body");
-    body.appendChild(el("span", "card__title", { textContent: item.name || "" }));
-    if (item.meta) {
-      body.appendChild(el("span", "card__meta", { textContent: item.meta }));
-    }
-    row.appendChild(body);
-
-    if (hasLink) {
-      var arrow = el("span", "card__arrow");
-      arrow.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
-        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">' +
-        '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-      row.appendChild(arrow);
-    }
-
-    return card;
-  }
-
-  /* ---------- 分组 ---------- */
-  function buildGroup(group, index) {
-    var items = (group.items || []).filter(Boolean);
-    if (!items.length) return null;
-
-    var section = el("section", "reveal");
-    section.style.animationDelay = 0.16 + index * 0.1 + "s";
-    section.setAttribute("aria-labelledby", group.id + "-title");
-
-    var head = el("div", "group__head");
-    head.appendChild(el("h2", "group__title", { id: group.id + "-title", textContent: group.title }));
-    head.appendChild(
-      el("span", "group__count", { textContent: String(items.length).padStart(2, "0") })
-    );
-    section.appendChild(head);
-
-    if (group.desc) {
-      section.appendChild(el("p", "group__desc", { textContent: group.desc }));
-    }
-
-    var grid = el("div", "grid");
-    items.forEach(function (item) {
-      grid.appendChild(buildCard(item));
-    });
-    section.appendChild(grid);
-
-    return section;
-  }
-
-  /* ---------- 页脚 ---------- */
-  function buildFooter() {
-    var s = SITE.site || {};
-    var footer = el("footer", "footer reveal");
-    footer.style.animationDelay = "0.36s";
-
-    // 第一行：个性签名（可选）
-    if (s.sign) {
-      footer.appendChild(el("p", "footer__sign", { textContent: s.sign }));
-    }
-
-    // 第二行：链接（可选，顶栏已有这些入口时留空即可）
-    var items = SITE.footer || [];
-    if (items.length) {
-      var links = el("nav", "footer__links", { "aria-label": "页脚导航" });
-      items.forEach(function (item, i) {
-        if (i > 0) {
-          links.appendChild(el("span", "footer__sep", { "aria-hidden": "true", textContent: "·" }));
-        }
-        var attrs = { href: item.href, textContent: item.label };
-        if (item.external || external(item.href)) {
-          attrs.target = "_blank";
-          attrs.rel = "noreferrer";
-        }
-        links.appendChild(el("a", null, attrs));
-      });
-      footer.appendChild(links);
-    }
-
-    // 底行：仅保留右侧徽章
-    var bottom = el("div", "footer__bottom");
-
-    // 徽章（可选）
-    if (s.badge && s.badge.src) {
-      var badgeLink = el("a", "footer__badge", { href: s.badge.href || "#" });
-      if (external(s.badge.href)) {
-        badgeLink.setAttribute("target", "_blank");
-        badgeLink.setAttribute("rel", "noreferrer");
-      }
-      badgeLink.appendChild(
-        el("img", null, {
-          src: s.badge.src,
-          alt: s.badge.alt || "",
-          width: s.badge.width || 52,
-          height: s.badge.height || 22,
-          loading: "lazy",
-        })
-      );
-      bottom.appendChild(badgeLink);
-    }
-
-    footer.appendChild(bottom);
-
-    return footer;
-  }
-
-  /* ---------- 组装 ---------- */
-  function render() {
-    var s = SITE.site || {};
-    var root = document.getElementById("app");
-    if (!root) return;
-
-    document.title = s.name ? s.name : "我的主页";
-    var metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc && s.subtitle) metaDesc.setAttribute("content", s.subtitle);
-
-    root.appendChild(buildHeader());
-
-    var main = el("main", null, { id: "main" });
-
-    var hero = el("section", "hero reveal");
-    hero.style.animationDelay = "0.06s";
-    hero.appendChild(el("h1", "hero__title", { textContent: s.title || "" }));
-    if (s.motto) {
-      hero.appendChild(el("p", "hero__motto", { textContent: s.motto }));
-    }
-    if (s.subtitle) {
-      hero.appendChild(el("p", "hero__subtitle", { textContent: s.subtitle }));
-    }
-    main.appendChild(hero);
-
-    var groups = el("div", "groups", {id:"projectGroups"});
-    projectGroups(activeCatalog).forEach(function(group,i){var node=buildGroup(group,i);if(node)groups.appendChild(node);});
-    main.appendChild(groups);
-
-    main.appendChild(buildFooter());
-    root.appendChild(main);
-  }
-
-  function initialCatalog(){
-    try{localStorage.removeItem('homepage-project-catalog-v1');const cached=JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY));if(cached?.source===CATALOG_URL)return normalizeCatalog(cached.data);}catch{}
-    return normalizeCatalog(JSON.parse(document.getElementById('catalogSnapshot').textContent));
-  }
-  async function refreshCatalog(){
-    try{const response=await fetch(CATALOG_URL,{credentials:'omit',cache:'no-cache',signal:AbortSignal.timeout(8000)});if(!response.ok)throw Error('Catalog unavailable');const fresh=normalizeCatalog(await response.json());
-      try{localStorage.setItem(CATALOG_CACHE_KEY,JSON.stringify({source:CATALOG_URL,data:fresh}));}catch{}
-      if(JSON.stringify(fresh)===JSON.stringify(activeCatalog))return;activeCatalog=fresh;
-      const container=document.getElementById('projectGroups'),fragment=document.createDocumentFragment();projectGroups(fresh).forEach((group,i)=>{const node=buildGroup(group,i);if(node){node.classList.remove('reveal');fragment.appendChild(node);}});container.replaceChildren(fragment);
-    }catch(error){console.info('项目目录暂时无法更新，继续使用已保存的目录。');}
-  }
-  function start(){activeCatalog=initialCatalog();render();refreshCatalog();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
+boot(() => {
+  catalog = initialCatalog();
+  const s = SITE.site;
+  const nav = el('nav', 'desk__nav', { 'aria-label': '主导航' });
+  SITE.nav.forEach(n => nav.append(el('a', null, Object.assign(linkAttrs(n.href), { text: n.label }))));
+  nav.append(themeToggle('desk__theme'));
+  const header = el('header', 'desk', null, [el('a', 'desk__home', { href: '#main', text: 'mjh.im' }), nav]);
+  const foot = el('footer', 'desk__foot', null, [
+    el('p', 'desk__note', { id: 'countNote' }),
+    el('div', 'desk__tools', null, [
+      el('button', 'peel', { type: 'button', text: '把贴纸放回原位', onclick: resetStickers }),
+      s.badge?.src ? el('a', 'desk__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, height: 16, width: 38, loading: 'lazy' })]) : null
+    ])
+  ]);
+  document.getElementById('app').append(header, lid(), foot);
+  paint();
+  if (!reducedMotion()) document.body.classList.add('is-slapping');
+  refreshCatalog(catalog, fresh => { catalog = fresh; paint(); });
+});
