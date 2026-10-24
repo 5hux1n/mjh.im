@@ -10,7 +10,7 @@ export const SITE = {
     motto: 'Ideas used to be limited by skills. Not anymore.',
     quote: '如果一件事还没开始你就考虑失败了怎么办，那干脆就别做了。',
     quoteNote: 'No bb, one two three, go',
-    badge: { href: 'https://noshakeads.com/10000', src: 'https://noshakeads.com/badge.svg', alt: 'NSAA', width: 52, height: 22 }
+    credit: 'Design By Claude/5huX1n'
   },
   // 头像下面的几条基本信息：icon 可选 pin / age / male / work
   facts: [
@@ -30,8 +30,6 @@ export const SITE = {
     { title: '书信', text: '在自己写的微博客上记日常和逆向笔记。', href: 'https://shuxin.my/', host: 'shuxin.my' }
   ],
   // 作品入口：首页只放这一个入口，数字来自 PingMe 目录
-  // 页脚额外链接
-  source: { label: '本站源码', href: 'https://github.com/5hux1n/mjh.im' },
   works: { href: 'https://pingme.pm/', label: '看看我做过的全部作品' },
   links: [
     { label: 'GitHub', href: 'https://github.com/5hux1n/', host: 'github.com/5hux1n' },

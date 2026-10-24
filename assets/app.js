@@ -83,23 +83,23 @@ function works() {
   ]);
 }
 
-// 页脚：一句收尾的话，下面是一条玻璃工具栏（小签名、年份、链接、徽章）
+// 页脚：一句收尾的话；最底下一条贴边的磨砂底栏，用细线分隔链接和署名
 function footer() {
   const s = SITE.site;
-  const links = el('nav', 'bar__links', { 'aria-label': '页脚链接' });
-  SITE.links.concat(SITE.source ? [SITE.source] : []).forEach(l => links.append(el('a', null, Object.assign(linkAttrs(l.href), { text: l.label }))));
+  const links = el('nav', 'base__links', { 'aria-label': '页脚链接' });
+  SITE.links.forEach(l => links.append(el('a', null, Object.assign(linkAttrs(l.href), { text: l.label }))));
   return el('footer', 'foot', null, [
-    el('blockquote', 'lg sheet closing', null, [
-      el('p', 'closing__line', { text: s.quote }),
-      s.quoteNote ? el('p', 'closing__note', { lang: 'en', text: s.quoteNote }) : null
+    el('div', 'foot__inner', null, [
+      el('blockquote', 'lg sheet closing', null, [
+        el('p', 'closing__line', { text: s.quote }),
+        s.quoteNote ? el('p', 'closing__note', { lang: 'en', text: s.quoteNote }) : null
+      ])
     ]),
-    el('div', 'lg lg--clear bar', null, [
-      el('a', 'bar__sign', { href: '#main', 'aria-label': '回到顶部' }, [
-        el('span', 'bar__sig', { 'aria-hidden': 'true', html: signatureSVG(false) }),
-        el('span', 'bar__year', { text: '© ' + new Date().getFullYear() })
-      ]),
-      links,
-      s.badge?.src ? el('a', 'bar__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, width: 38, height: 16, loading: 'lazy' })]) : null
+    el('div', 'base', null, [
+      el('div', 'base__inner', null, [
+        links,
+        el('p', 'base__credit', { lang: 'en', text: (s.credit || '') + ' @' + new Date().getFullYear() })
+      ])
     ])
   ]);
 }
