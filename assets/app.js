@@ -1,297 +1,96 @@
 import { SITE } from './site.js?v=20261013-unified-catalog';
-import { CATALOG_URL,CATALOG_CACHE_KEY,normalizeCatalog,projectGroups } from './catalog.js?v=20261014-plugin-catalog';
-(function () {
-  "use strict";
+import { el, linkAttrs, icon, themeToggle, initialCatalog, refreshCatalog, projectGroups, reducedMotion, boot } from './core.js?v=20261025-poster';
 
-  var activeCatalog;
+// 设计：一张「想做就做」的海报，往下是全部成品的大字索引。
+let catalog, active = 'all';
 
-  /* ---------- 小工具 ---------- */
-  function el(tag, className, attrs) {
-    var node = document.createElement(tag);
-    if (className) node.className = className;
-    if (attrs) {
-      Object.keys(attrs).forEach(function (k) {
-        var v = attrs[k];
-        if (v === undefined || v === null) return;
-        // textContent / html 是 DOM 属性，不能走 setAttribute
-        if (k === "textContent") {
-          node.textContent = v;
-        } else if (k === "html") {
-          node.innerHTML = v;
-        } else {
-          node.setAttribute(k, v);
-        }
-      });
-    }
-    return node;
+function topbar() {
+  const s = SITE.site;
+  const nav = el('nav', 'top__nav', { 'aria-label': '主导航' });
+  SITE.nav.forEach(n => nav.append(el('a', null, Object.assign(linkAttrs(n.href), { text: n.label }))));
+  nav.append(themeToggle('top__theme'));
+  return el('header', 'top', null, [
+    el('a', 'top__brand', { href: '#main' }, [el('img', null, { src: s.logo, alt: '', width: 28, height: 28 }), el('span', null, { text: s.name })]),
+    nav
+  ]);
+}
+
+function hero() {
+  const s = SITE.site;
+  const chars = el('h1', 'hero__chars', { 'aria-label': '想做就做' });
+  [...'想做就做'].forEach((c, i) => chars.append(el('span', 'hero__char', { text: c, style: '--i:' + i, 'aria-hidden': 'true' })));
+  return el('section', 'hero', { 'aria-labelledby': 'heroLine' }, [
+    chars,
+    el('div', 'hero__foot', null, [
+      el('p', 'hero__line', { id: 'heroLine' }, [el('strong', null, { text: s.title }), document.createTextNode(' ' + s.motto)]),
+      el('a', 'hero__jump', { href: '#index', id: 'heroJump' })
+    ])
+  ]);
+}
+
+function row(item, cat) {
+  const cells = [
+    icon(item, 'row__icon', 56),
+    el('span', 'row__name', { text: item.name }),
+    el('span', 'row__meta', { text: item.meta || cat.title }),
+    el('span', 'row__go', { 'aria-hidden': 'true', text: item.href ? '打开' : '微信内' })
+  ];
+  return el('li', null, null, [item.href ? el('a', 'row', linkAttrs(item.href), cells) : el('div', 'row is-static', null, cells)]);
+}
+
+function filters(groups) {
+  const bar = el('div', 'filters', { role: 'toolbar', 'aria-label': '按类型筛选' });
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+  const chip = (id, label, n) => el('button', 'chip', { type: 'button', 'aria-pressed': String(active === id), 'data-id': id, onclick: () => { active = id; paint(); } }, [el('span', null, { text: label }), el('sup', null, { text: n })]);
+  bar.append(chip('all', '全部', total), ...groups.map(g => chip(g.id, g.title, g.items.length)));
+  return bar;
+}
+
+function paint() {
+  const groups = projectGroups(catalog);
+  if (active !== 'all' && !groups.some(g => g.id === active)) active = 'all';
+  const shown = active === 'all' ? groups : groups.filter(g => g.id === active);
+  const list = el('div', 'chapters');
+  shown.forEach(g => {
+    const ul = el('ul', 'rows', { role: 'list' });
+    g.items.forEach(it => ul.append(row(it, g)));
+    list.append(el('section', 'chapter', { 'aria-labelledby': 'ch-' + g.id }, [
+      el('header', 'chapter__head', null, [
+        el('h2', 'chapter__title', { id: 'ch-' + g.id, text: g.title }),
+        el('p', 'chapter__desc', { text: (g.desc ? g.desc + '，' : '') + '共 ' + g.items.length + ' 个' })
+      ]),
+      ul
+    ]));
+  });
+  const index = document.getElementById('index');
+  const chipFocused = document.activeElement?.classList.contains('chip');
+  index.replaceChildren(filters(groups), list);
+  if (chipFocused) {
+    index.querySelector('.chip[aria-pressed="true"]')?.focus({ preventScroll: true });
+    if (index.getBoundingClientRect().top < 0) index.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth' });
   }
+  const jump = document.getElementById('heroJump');
+  jump.textContent = '往下看 ' + catalog.projects.length + ' 个成品';
+}
 
-  function external(href) {
-    return /^https?:\/\//i.test(href || "");
-  }
+function footer() {
+  const s = SITE.site;
+  const f = el('footer', 'end', null, [
+    el('p', 'end__big', { text: '想做，就去做。' }),
+    el('p', 'end__small', { text: '这些都是用自然语言和 AI 一起写出来的。有想法或者遇到问题，来找我聊。' })
+  ]);
+  const links = el('nav', 'end__links', { 'aria-label': '页脚导航' });
+  SITE.nav.forEach(n => links.append(el('a', null, Object.assign(linkAttrs(n.href), { text: n.label }))));
+  if (s.badge?.src) links.append(el('a', 'end__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, height: 16, width: 38, loading: 'lazy' })]));
+  f.append(links);
+  return f;
+}
 
-  function initial(name) {
-    var s = String(name || "?").trim();
-    // 取第一个字符；中文名也能正常显示
-    return s ? s.charAt(0) : "?";
-  }
-
-  /* ---------- 主题切换：auto → light → dark → auto ---------- */
-  var THEME_KEY = "homepage-theme";
-  var THEMES = ["auto", "light", "dark"];
-  var ICONS = {
-    auto: '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M12 3v18"/>',
-    light:
-      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-    dark: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
-  };
-
-  function readTheme() {
-    try {
-      var v = localStorage.getItem(THEME_KEY);
-      return THEMES.indexOf(v) >= 0 ? v : "auto";
-    } catch (e) {
-      return "auto";
-    }
-  }
-
-  function applyTheme(mode) {
-    var root = document.documentElement;
-    if (mode === "auto") {
-      root.removeAttribute("data-theme");
-    } else {
-      root.setAttribute("data-theme", mode);
-    }
-    try {
-      localStorage.setItem(THEME_KEY, mode);
-    } catch (e) {
-      /* 隐私模式下忽略 */
-    }
-  }
-
-  /* ---------- 顶栏 ---------- */
-  function buildHeader() {
-    var s = SITE.site || {};
-    var header = el("header", "header");
-
-    var brand = el("a", "brand", { href: "#main", "aria-label": s.name || "首页" });
-    if (s.logo) {
-      brand.appendChild(el("img", "brand__logo", { src: s.logo, alt: "", width: 20, height: 20 }));
-    }
-    brand.appendChild(el("span", "brand__name", { textContent: s.name || "" }));
-    header.appendChild(brand);
-
-    var nav = el("nav", "nav", { "aria-label": "主导航" });
-    (SITE.nav || []).forEach(function (item) {
-      var attrs = { href: item.href };
-      if (item.external || external(item.href)) {
-        attrs.target = "_blank";
-        attrs.rel = "noreferrer";
-      }
-      nav.appendChild(el("a", null, Object.assign(attrs, { textContent: item.label })));
-    });
-
-    var toggle = el("button", "theme-toggle", {
-      type: "button",
-      "aria-label": "切换配色",
-      title: "切换配色：跟随系统 / 浅色 / 深色",
-    });
-    toggle.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>';
-    var svg = toggle.firstChild;
-
-    function paint(mode) {
-      svg.innerHTML = ICONS[mode];
-      toggle.setAttribute("data-mode", mode);
-    }
-
-    var mode = readTheme();
-    applyTheme(mode);
-    paint(mode);
-
-    toggle.addEventListener("click", function () {
-      mode = THEMES[(THEMES.indexOf(mode) + 1) % THEMES.length];
-      applyTheme(mode);
-      paint(mode);
-    });
-
-    nav.appendChild(toggle);
-    header.appendChild(nav);
-    return header;
-  }
-
-  /* ---------- 卡片 ---------- */
-  function buildCard(item) {
-    // 没有链接的作品（比如微信小程序）渲染成静态卡片，不做成点了没反应的假链接
-    var hasLink = Boolean(item.href);
-    var cls = "card" + (hasLink ? "" : " card--static");
-    var card = hasLink ? el("a", cls, { href: item.href }) : el("div", cls);
-    if (hasLink && external(item.href)) {
-      card.setAttribute("target", "_blank");
-      card.setAttribute("rel", "noreferrer");
-    }
-
-    var row = card;
-    card.dataset.project=item.slug;
-    if (item.icon) {
-      row.appendChild(
-        el("img", "card__icon", { src: item.icon, alt: "", width: 40, height: 40, decoding: "async" })
-      );
-    } else {
-      var letter = el("span", "card__icon card__icon--letter", { "aria-hidden": "true" });
-      letter.textContent = initial(item.name);
-      row.appendChild(letter);
-    }
-
-    var body = el("span", "card__body");
-    body.appendChild(el("span", "card__title", { textContent: item.name || "" }));
-    if (item.meta) {
-      body.appendChild(el("span", "card__meta", { textContent: item.meta }));
-    }
-    row.appendChild(body);
-
-    if (hasLink) {
-      var arrow = el("span", "card__arrow");
-      arrow.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
-        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">' +
-        '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-      row.appendChild(arrow);
-    }
-
-    return card;
-  }
-
-  /* ---------- 分组 ---------- */
-  function buildGroup(group, index) {
-    var items = (group.items || []).filter(Boolean);
-    if (!items.length) return null;
-
-    var section = el("section", "reveal");
-    section.style.animationDelay = 0.16 + index * 0.1 + "s";
-    section.setAttribute("aria-labelledby", group.id + "-title");
-
-    var head = el("div", "group__head");
-    head.appendChild(el("h2", "group__title", { id: group.id + "-title", textContent: group.title }));
-    head.appendChild(
-      el("span", "group__count", { textContent: String(items.length).padStart(2, "0") })
-    );
-    section.appendChild(head);
-
-    if (group.desc) {
-      section.appendChild(el("p", "group__desc", { textContent: group.desc }));
-    }
-
-    var grid = el("div", "grid");
-    items.forEach(function (item) {
-      grid.appendChild(buildCard(item));
-    });
-    section.appendChild(grid);
-
-    return section;
-  }
-
-  /* ---------- 页脚 ---------- */
-  function buildFooter() {
-    var s = SITE.site || {};
-    var footer = el("footer", "footer reveal");
-    footer.style.animationDelay = "0.36s";
-
-    // 第一行：个性签名（可选）
-    if (s.sign) {
-      footer.appendChild(el("p", "footer__sign", { textContent: s.sign }));
-    }
-
-    // 第二行：链接（可选，顶栏已有这些入口时留空即可）
-    var items = SITE.footer || [];
-    if (items.length) {
-      var links = el("nav", "footer__links", { "aria-label": "页脚导航" });
-      items.forEach(function (item, i) {
-        if (i > 0) {
-          links.appendChild(el("span", "footer__sep", { "aria-hidden": "true", textContent: "·" }));
-        }
-        var attrs = { href: item.href, textContent: item.label };
-        if (item.external || external(item.href)) {
-          attrs.target = "_blank";
-          attrs.rel = "noreferrer";
-        }
-        links.appendChild(el("a", null, attrs));
-      });
-      footer.appendChild(links);
-    }
-
-    // 底行：仅保留右侧徽章
-    var bottom = el("div", "footer__bottom");
-
-    // 徽章（可选）
-    if (s.badge && s.badge.src) {
-      var badgeLink = el("a", "footer__badge", { href: s.badge.href || "#" });
-      if (external(s.badge.href)) {
-        badgeLink.setAttribute("target", "_blank");
-        badgeLink.setAttribute("rel", "noreferrer");
-      }
-      badgeLink.appendChild(
-        el("img", null, {
-          src: s.badge.src,
-          alt: s.badge.alt || "",
-          width: s.badge.width || 52,
-          height: s.badge.height || 22,
-          loading: "lazy",
-        })
-      );
-      bottom.appendChild(badgeLink);
-    }
-
-    footer.appendChild(bottom);
-
-    return footer;
-  }
-
-  /* ---------- 组装 ---------- */
-  function render() {
-    var s = SITE.site || {};
-    var root = document.getElementById("app");
-    if (!root) return;
-
-    document.title = s.name ? s.name : "我的主页";
-    var metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc && s.subtitle) metaDesc.setAttribute("content", s.subtitle);
-
-    root.appendChild(buildHeader());
-
-    var main = el("main", null, { id: "main" });
-
-    var hero = el("section", "hero reveal");
-    hero.style.animationDelay = "0.06s";
-    hero.appendChild(el("h1", "hero__title", { textContent: s.title || "" }));
-    if (s.motto) {
-      hero.appendChild(el("p", "hero__motto", { textContent: s.motto }));
-    }
-    if (s.subtitle) {
-      hero.appendChild(el("p", "hero__subtitle", { textContent: s.subtitle }));
-    }
-    main.appendChild(hero);
-
-    var groups = el("div", "groups", {id:"projectGroups"});
-    projectGroups(activeCatalog).forEach(function(group,i){var node=buildGroup(group,i);if(node)groups.appendChild(node);});
-    main.appendChild(groups);
-
-    main.appendChild(buildFooter());
-    root.appendChild(main);
-  }
-
-  function initialCatalog(){
-    try{localStorage.removeItem('homepage-project-catalog-v1');const cached=JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY));if(cached?.source===CATALOG_URL)return normalizeCatalog(cached.data);}catch{}
-    return normalizeCatalog(JSON.parse(document.getElementById('catalogSnapshot').textContent));
-  }
-  async function refreshCatalog(){
-    try{const response=await fetch(CATALOG_URL,{credentials:'omit',cache:'no-cache',signal:AbortSignal.timeout(8000)});if(!response.ok)throw Error('Catalog unavailable');const fresh=normalizeCatalog(await response.json());
-      try{localStorage.setItem(CATALOG_CACHE_KEY,JSON.stringify({source:CATALOG_URL,data:fresh}));}catch{}
-      if(JSON.stringify(fresh)===JSON.stringify(activeCatalog))return;activeCatalog=fresh;
-      const container=document.getElementById('projectGroups'),fragment=document.createDocumentFragment();projectGroups(fresh).forEach((group,i)=>{const node=buildGroup(group,i);if(node){node.classList.remove('reveal');fragment.appendChild(node);}});container.replaceChildren(fragment);
-    }catch(error){console.info('项目目录暂时无法更新，继续使用已保存的目录。');}
-  }
-  function start(){activeCatalog=initialCatalog();render();refreshCatalog();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
+boot(() => {
+  catalog = initialCatalog();
+  const root = document.getElementById('app');
+  root.append(topbar(), el('main', null, { id: 'main' }, [hero(), el('section', 'index', { id: 'index', 'aria-label': '全部成品' })]), footer());
+  paint();
+  if (!reducedMotion()) document.body.classList.add('is-stamping');
+  refreshCatalog(catalog, fresh => { catalog = fresh; paint(); });
+});
