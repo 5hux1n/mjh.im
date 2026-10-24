@@ -3,6 +3,7 @@ export const SITE = {
   site: {
     name: '俊宏',
     handle: '5hux1n',
+    city: '山东滕州',
     logo: 'touxiang.jpg',
     title: 'Go for it!',
     motto: 'Ideas used to be limited by skills. Not anymore.',
@@ -11,8 +12,8 @@ export const SITE = {
   },
   // 自我介绍，一句一段
   intro: [
-    '我是俊宏，网上常用的名字是 5hux1n。',
-    '我主要做 iOS 越狱插件和 App 逆向，也写网站、微信小程序和 Mac 小工具。',
+    '我是俊宏，在山东滕州，网上常用的名字是 5hux1n。',
+    '两年前开始做 iOS 越狱插件和 App 逆向，现在也写网站、微信小程序和 Mac 小工具。',
     '这些东西大多是我用大白话和 AI 一起写出来的。以前想法受限于技术，现在不会了。'
   ],
   // 现在在做的事
