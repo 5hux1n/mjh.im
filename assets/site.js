@@ -3,6 +3,7 @@ export const SITE = {
   site: {
     name: '俊宏',
     handle: '5hux1n',
+    signature: 'junhong',
     city: '山东滕州',
     logo: 'touxiang.jpg',
     title: 'Go for it!',
@@ -10,11 +11,16 @@ export const SITE = {
     quote: '活着就别考虑那么多条条框框，又不是写作文一样有人给你打分。',
     badge: { href: 'https://noshakeads.com/10000', src: 'https://noshakeads.com/badge.svg', alt: 'NSAA', width: 52, height: 22 }
   },
+  // 头像下面的几条基本信息：icon 可选 pin / age / male / work
+  facts: [
+    { icon: 'pin', text: '山东滕州' },
+    { icon: 'age', text: '90后' },
+    { icon: 'male', text: '男' },
+    { icon: 'work', text: '自由职业' }
+  ],
   // 自我介绍，一句一段
   intro: [
-    '我是俊宏，在山东滕州，网上常用的名字是 5hux1n。',
-    '两年前开始做 iOS 越狱插件和 App 逆向，现在也写网站、微信小程序和 Mac 小工具。',
-    '这些东西大多是我用大白话和 AI 一起写出来的。以前想法受限于技术，现在不会了。'
+    '两年前开始做 iOS 越狱插件和 App 逆向，现在也写网站、微信小程序和 Mac 小工具。'
   ],
   // 现在在做的事
   now: [

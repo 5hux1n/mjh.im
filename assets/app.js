@@ -1,5 +1,6 @@
 import { SITE } from './site.js?v=20261025-glass';
 import { el, linkAttrs, themeToggle, worksCount, reducedMotion, boot } from './core.js?v=20261025-glass';
+import { SIGNATURE } from './signature.js?v=20261025-glass';
 
 // 设计：iOS 26 液态玻璃。背后是一张大字壁纸，玻璃浮在上面；
 // 在支持的浏览器里，玻璃边缘用位移贴图真实地折射背后的字，其他浏览器退回清透的毛玻璃。
@@ -19,13 +20,41 @@ function nav() {
   ]);
 }
 
+const FACT_ICONS = {
+  pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  age: '<path d="M4 21h16"/><path d="M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7"/><path d="M5 16.5c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0"/><path d="M12 12V8.5"/><path d="M12 6c.9-.9.9-2.2 0-3-.9.8-.9 2.1 0 3Z"/>',
+  male: '<circle cx="10" cy="14" r="6"/><path d="M14.3 9.7 20 4"/><path d="M15 4h5v5"/>',
+  work: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/><path d="M3 13h18"/>'
+};
+const factIcon = name => '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (FACT_ICONS[name] || '') + '</svg>';
+
+// 手写签名：和 GitHub 主页卡片同一套写法，一笔一笔写出来，再把墨填满
+function signature(label) {
+  const WRITE = 2.6, PAD = 6;
+  const [x0, y0, x1, y1] = SIGNATURE.bbox, span = x1 - x0;
+  const paths = SIGNATURE.glyphs.map(g => {
+    const start = (g.bounds[0] - x0) / span * WRITE * 0.82;
+    const dur = Math.max(0.35, (g.bounds[2] - g.bounds[0]) / span * WRITE * 1.6);
+    return `<path class="sig__ink" pathLength="1" d="${g.d}" style="animation-delay:${start.toFixed(2)}s,${(WRITE * 0.8 + start * 0.3).toFixed(2)}s;animation-duration:${dur.toFixed(2)}s,.9s"/>`;
+  }).join('');
+  const vb = [x0 - PAD, y0 - PAD, span + PAD * 2, y1 - y0 + PAD * 2].map(v => v.toFixed(1)).join(' ');
+  return el('h1', 'sig', { id: 'heroTitle' }, [
+    el('span', 'sr-only', { text: label }),
+    el('span', 'sig__art', { 'aria-hidden': 'true', html: `<svg viewBox="${vb}" preserveAspectRatio="xMinYMid meet">${paths}</svg>` })
+  ]);
+}
+
 function hero() {
   const s = SITE.site;
-  const [first, ...rest] = SITE.intro;
+  const facts = el('ul', 'facts', { role: 'list', 'aria-label': '基本信息' });
+  (SITE.facts || []).forEach(f => facts.append(el('li', 'fact', null, [el('span', 'fact__icon', { html: factIcon(f.icon) }), el('span', null, { text: f.text })])));
   return el('section', 'lg sheet hero', { 'aria-labelledby': 'heroTitle' }, [
-    el('img', 'hero__avatar', { src: s.logo, alt: '', width: 72, height: 72 }),
-    el('h1', 'hero__title', { id: 'heroTitle', text: first }),
-    ...rest.map(t => el('p', 'hero__text', { text: t }))
+    el('div', 'hero__id', null, [
+      el('img', 'hero__avatar', { src: s.logo, alt: '', width: 76, height: 76 }),
+      signature(s.name + '（' + s.signature + '）')
+    ]),
+    facts,
+    ...SITE.intro.map((t, i) => el('p', i === 0 ? 'hero__title' : 'hero__text', { text: t }))
   ]);
 }
 
@@ -54,7 +83,6 @@ function footer() {
   return el('footer', 'foot', null, [
     el('blockquote', 'lg sheet foot__quote', null, [el('p', null, { text: s.quote }), el('p', 'foot__by', { text: '写在我的博客签名里' })]),
     el('div', 'foot__row', null, [
-      el('p', null, { text: s.title + ' ' + s.motto }),
       s.badge?.src ? el('a', 'foot__badge', linkAttrs(s.badge.href), [el('img', null, { src: s.badge.src, alt: s.badge.alt, width: 38, height: 16, loading: 'lazy' })]) : null
     ])
   ]);
@@ -166,6 +194,7 @@ boot(() => {
     el('main', 'page', { id: 'main' }, [hero(), el('div', 'pair', null, [now(), works()])]),
     footer()
   );
+  if (!reducedMotion()) document.body.classList.add('is-writing');
   worksCount(n => { document.getElementById('worksCount').textContent = n + ' 个作品，在 PingMe'; });
   const go = () => { setupLenses(); specular(); };
   // 等壁纸字体就位再算贴图，避免第一次测量的尺寸不准

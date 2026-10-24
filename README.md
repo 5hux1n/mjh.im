@@ -16,6 +16,7 @@
 
 - 个人资料、自我介绍、「现在在做」和链接：`assets/site.js`（三个设计共用同一份文案）。
 - 页面结构：`assets/app.js`；共用逻辑（主题、作品数量）：`assets/core.js`。
+- 手写签名：`assets/signature.js`，Parisienne 字形轮廓（SIL OFL 1.1），与 GitHub 主页卡片同一笔迹；头像下的基本信息在 `assets/site.js` 的 `facts`。
 - 项目目录读取与校验：`assets/catalog.js`。
 - 页面样式：`assets/styles.css`。
 - 发布前运行 `npm run snapshot`，从反馈中心接口重新生成 index.html 中的回退快照，再推送源码。需要 Node.js 22+，无需安装第三方依赖。生成快照不作为项目编辑入口。
