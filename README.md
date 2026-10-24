@@ -2,6 +2,10 @@
 
 俊宏的个人主页：<https://mjh.im/>。原生 HTML、CSS 与 JavaScript，通过 GitHub Pages 发布。
 
+> **设计方案 `design-chat`**：Vibe Coding 就是聊天：右边绿色气泡是想法，左边是做出来的成品，配色取自微信对话。底部输入框直接搜索成品，上方的标签可以跳到各分类。
+>
+> 共用逻辑在 `assets/core.js`（主题切换、目录快照与后台刷新、图标加载失败时显示首字），PingMe 目录同步方式与 main 完全一致。
+
 ## 项目目录
 
 项目列表统一由 [PingMe 反馈中心](https://pingme.pm/admin) 的“项目管理”维护。名称、简介、官网、分类、分组说明、排序和图片自动同步；“个人主页展示”控制是否在本站出现。本站没有独立项目配置，也不重复保存项目图标。
@@ -13,5 +17,6 @@
 - 个人资料与导航：`assets/site.js`。
 - 项目目录读取与校验：`assets/catalog.js`。
 - 页面样式：`assets/styles.css`。
+- 本设计的页面结构：`assets/app.js`；共用逻辑：`assets/core.js`。
 - 发布前运行 `npm run snapshot`，从反馈中心接口重新生成 index.html 中的回退快照，再推送源码。需要 Node.js 22+，无需安装第三方依赖。生成快照不作为项目编辑入口。
 - GitHub Pages 发布 main 分支根目录；自定义域名保存在 CNAME。
