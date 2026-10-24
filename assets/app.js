@@ -75,11 +75,33 @@ function now() {
   return el('section', 'lg sheet now', { 'aria-labelledby': 'nowTitle' }, [el('h2', 'now__head', { id: 'nowTitle', text: '现在在做' }), list]);
 }
 
+// 作品入口：三张展开的 App 图标代表网页、插件和小程序，悬停时扇面再打开一点
+const FAN = `<svg class="fan" viewBox="0 0 140 92" aria-hidden="true">
+  <g class="fan__tile fan__tile--l"><rect x="10" y="24" width="54" height="54" rx="14"/>
+    <g class="fan__glyph" transform="translate(37 51)"><circle r="11"/><ellipse rx="5" ry="11"/><path d="M-11 0h22"/></g></g>
+  <g class="fan__tile fan__tile--r"><rect x="76" y="24" width="54" height="54" rx="14"/>
+    <g class="fan__glyph" transform="translate(103 51)"><path d="M-11-8a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H-3l-6 5v-5h1a3 3 0 0 1-3-3Z"/></g></g>
+  <g class="fan__tile fan__tile--c"><rect x="43" y="10" width="54" height="54" rx="14"/>
+    <g class="fan__glyph" transform="translate(70 37)"><rect x="-11" y="-11" width="9" height="9" rx="2.5"/><rect x="2" y="-11" width="9" height="9" rx="2.5"/><rect x="-11" y="2" width="9" height="9" rx="2.5"/><path d="M6.5 2v9M2 6.5h9"/></g></g>
+</svg>`;
+
 function works() {
-  return el('a', 'lg lg--tint works', linkAttrs(SITE.works.href), [
-    el('span', 'works__label', { text: SITE.works.label }),
-    el('span', 'works__count', { id: 'worksCount', text: '在 PingMe' }),
-    el('span', 'works__arrow', { html: ARROW })
+  return el('a', 'lg lg--tint works', Object.assign(linkAttrs(SITE.works.href), { 'aria-describedby': 'worksSub' }), [
+    el('span', 'works__art', { html: FAN }),
+    el('span', 'works__arrow', { html: ARROW }),
+    el('span', 'works__num', null, [el('strong', null, { id: 'worksNum', text: '全部' }), el('span', null, { text: ' 个作品' })]),
+    el('span', 'works__sub', { id: 'worksSub', text: '插件、网站、小程序都在 PingMe，点开看看' }),
+    el('span', 'sr-only', { text: SITE.works.label })
+  ]);
+}
+
+// 在第一个逗号处断开：前半句铺垫，后半句放大作落点
+function closingLine(text) {
+  const i = text.indexOf('，');
+  if (i < 0) return el('p', 'closing__line', null, [el('span', 'closing__punch', { text })]);
+  return el('p', 'closing__line', null, [
+    el('span', 'closing__setup', { text: text.slice(0, i + 1) }),
+    el('span', 'closing__punch', { text: text.slice(i + 1) })
   ]);
 }
 
@@ -91,14 +113,17 @@ function footer() {
   return el('footer', 'foot', null, [
     el('div', 'foot__inner', null, [
       el('blockquote', 'lg sheet closing', null, [
-        el('p', 'closing__line', { text: s.quote }),
+        closingLine(s.quote),
         s.quoteNote ? el('p', 'closing__note', { lang: 'en', text: s.quoteNote }) : null
       ])
     ]),
     el('div', 'base', null, [
       el('div', 'base__inner', null, [
         links,
-        el('p', 'base__credit', { lang: 'en', text: (s.credit || '') + ' @' + new Date().getFullYear() })
+        el('p', 'base__credit', { lang: 'en' }, [
+          el('span', null, { text: '© ' + new Date().getFullYear() + ' ' + (s.copyright || s.name) }),
+          s.credit ? el('span', 'base__made', { text: s.credit }) : null
+        ])
       ])
     ])
   ]);
@@ -211,7 +236,7 @@ boot(() => {
     footer()
   );
   if (!reducedMotion()) document.body.classList.add('is-writing');
-  worksCount(n => { document.getElementById('worksCount').textContent = n + ' 个作品，在 PingMe'; });
+  worksCount(n => { document.getElementById('worksNum').textContent = n; });
   const go = () => { setupLenses(); specular(); };
   // 等壁纸字体就位再算贴图，避免第一次测量的尺寸不准
   (document.fonts?.ready || Promise.resolve()).then(go);

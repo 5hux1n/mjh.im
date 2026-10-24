@@ -10,7 +10,8 @@ export const SITE = {
     motto: 'Ideas used to be limited by skills. Not anymore.',
     quote: '如果一件事还没开始你就考虑失败了怎么办，那干脆就别做了。',
     quoteNote: 'No bb, one two three, go',
-    credit: 'Design By Claude/5huX1n'
+    copyright: '5huX1n',
+    credit: 'Designed with Claude'
   },
   // 头像下面的几条基本信息：icon 可选 pin / age / male / work
   facts: [
